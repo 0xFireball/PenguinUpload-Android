@@ -1,4 +1,4 @@
-package xyz.iridiumion.penguinupload
+package xyz.iridiumion.penguinupload.activity
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity

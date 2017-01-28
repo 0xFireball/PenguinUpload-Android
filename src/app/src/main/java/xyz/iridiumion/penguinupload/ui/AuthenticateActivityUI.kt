@@ -2,13 +2,15 @@ package xyz.iridiumion.penguinupload.ui
 
 import android.support.v4.content.ContextCompat
 import android.text.InputType
+import android.util.Log
 import android.view.View
 import android.widget.EditText
 import android.widget.TextView
 import com.github.salomonbrys.kotson.fromJson
 import com.google.gson.Gson
 import org.jetbrains.anko.*
-import xyz.iridiumion.penguinupload.AuthenticateActivity
+import xyz.iridiumion.penguinupload.PenguinUploadApplication
+import xyz.iridiumion.penguinupload.activity.AuthenticateActivity
 import xyz.iridiumion.penguinupload.R
 import xyz.iridiumion.penguinupload.api.client.PenguinUploadClientAutomator
 import xyz.iridiumion.penguinupload.api.models.LoginResponse
@@ -17,6 +19,13 @@ class AuthenticateActivityUI : AnkoComponent<AuthenticateActivity> {
     companion object {
         val LAYOUT_ID = View.generateViewId()
         val LOGIN_PERSPECTIVE_ID = View.generateViewId()
+        fun saveLoginDetails(username: String, apikey: String, server: String) {
+            val editor = PenguinUploadApplication.preferences.edit()
+            editor.putString("username", username)
+            editor.putString("apikey", apikey)
+            editor.putString("server", server)
+            editor.apply()
+        }
     }
 
     override fun createView(ui: AnkoContext<AuthenticateActivity>) = with(ui) {
@@ -36,10 +45,12 @@ class AuthenticateActivityUI : AnkoComponent<AuthenticateActivity> {
                 textView("Server Address")
                 val serverAddress = editText {
                     hint = "Server Address"
+                    inputType = InputType.TYPE_CLASS_TEXT
                 }
                 textView("Username")
                 val usernameBox = editText {
                     hint = "Username"
+                    inputType = InputType.TYPE_CLASS_TEXT
                 }
                 textView("Password")
                 val passwordBox = editText {
@@ -56,7 +67,6 @@ class AuthenticateActivityUI : AnkoComponent<AuthenticateActivity> {
                             try {
                                 val (status, response) = client.attemptLogin(usernameBox.text.toString(), passwordBox.text.toString())
 
-
                                 if (!status) {
                                     uiThread {
                                         loginProgress.hide()
@@ -70,6 +80,9 @@ class AuthenticateActivityUI : AnkoComponent<AuthenticateActivity> {
                                     // parse returned data
                                     val gson = Gson()
                                     val loginResp = gson.fromJson<LoginResponse>(response)
+                                    val userApiKey = loginResp.apikey
+                                    // save login info
+                                    saveLoginDetails(usernameBox.text.toString(), userApiKey, serverAddress.text.toString())
                                     uiThread {
                                         loginProgress.hide()
                                         alert("This app isn't finished.", "Login success")
@@ -78,7 +91,6 @@ class AuthenticateActivityUI : AnkoComponent<AuthenticateActivity> {
                                         }
                                                 .show()
                                     }
-                                    val userApiKey = loginResp.apikey
                                 }
                             } catch (e: Exception) {
                                 uiThread {
