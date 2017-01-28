@@ -1,14 +1,14 @@
 package xyz.iridiumion.penguinupload.activity
 
-import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.os.Bundle
 import org.jetbrains.anko.setContentView
-import xyz.iridiumion.penguinupload.ui.AuthenticateActivityUI
+import xyz.iridiumion.penguinupload.ui.MainActivityUI
 
-class AuthenticateActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        AuthenticateActivityUI(this).setContentView(this)
+        MainActivityUI(this).setContentView(this)
     }
 }

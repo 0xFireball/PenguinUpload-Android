@@ -5,6 +5,10 @@ import xyz.iridiumion.penguinupload.PenguinUploadApplication
 data class ClientConfiguration(val username: String, val apikey: String, val server: String) {
     companion object {
 
+        fun hasLoginDetails(): Boolean {
+            return PenguinUploadApplication.preferences!!.contains("apikey")
+        }
+
         fun saveLoginDetails(config: ClientConfiguration) {
             val editor = PenguinUploadApplication.preferences!!.edit()
             editor.putString("username", config.username)

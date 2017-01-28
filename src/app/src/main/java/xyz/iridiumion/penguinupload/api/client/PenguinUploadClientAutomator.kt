@@ -9,6 +9,18 @@ class PenguinUploadClientAutomator constructor(val serverAddress: String) {
 
     }
 
+    fun validateKey(apikey: String): Pair<Boolean, String> {
+        val (request, response, result) = (serverAddress + "/api/userinfo").httpPost(listOf(Pair("apikey", apikey))).responseString()
+        when (result) {
+            is Result.Failure -> {
+                return Pair(false, response.httpResponseMessage)
+            }
+            is Result.Success -> {
+                return Pair(true, result.get())
+            }
+        }
+    }
+
     fun attemptLogin(username: String, password: String): Pair<Boolean, String> {
         val (request, response, result) = (serverAddress + "/login").httpPost(listOf(Pair("username", username), Pair("password", password))).responseString()
         // process response

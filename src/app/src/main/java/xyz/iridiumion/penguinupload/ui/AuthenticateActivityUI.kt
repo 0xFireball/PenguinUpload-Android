@@ -1,29 +1,42 @@
 package xyz.iridiumion.penguinupload.ui
 
+import android.content.Intent
 import android.support.v4.content.ContextCompat
 import android.text.InputType
-import android.util.Log
 import android.view.View
+import android.view.View.GONE
 import android.widget.EditText
 import android.widget.TextView
 import com.github.salomonbrys.kotson.fromJson
 import com.google.gson.Gson
 import org.jetbrains.anko.*
-import xyz.iridiumion.penguinupload.PenguinUploadApplication
-import xyz.iridiumion.penguinupload.activity.AuthenticateActivity
 import xyz.iridiumion.penguinupload.R
+import xyz.iridiumion.penguinupload.activity.AuthenticateActivity
+import xyz.iridiumion.penguinupload.activity.MainActivity
 import xyz.iridiumion.penguinupload.api.client.ClientConfiguration
+import xyz.iridiumion.penguinupload.api.client.ClientHelper
 import xyz.iridiumion.penguinupload.api.client.PenguinUploadClientAutomator
 import xyz.iridiumion.penguinupload.api.models.LoginResponse
+import kotlin.jvm.javaClass
 
-class AuthenticateActivityUI : AnkoComponent<AuthenticateActivity> {
+class AuthenticateActivityUI(val activity: AuthenticateActivity) : AnkoComponent<AuthenticateActivity> {
     companion object {
         val LAYOUT_ID = View.generateViewId()
         val LOGIN_PERSPECTIVE_ID = View.generateViewId()
     }
 
+    fun onSuccessfulLogin(response: String) {
+        // successful login
+        ClientHelper.whenLoggedIn(response)
+        // start next activity
+        val mainActivityStartIntent = Intent(activity, MainActivity::class.java)
+        activity.finish()
+        activity.startActivity(mainActivityStartIntent)
+    }
+
     override fun createView(ui: AnkoContext<AuthenticateActivity>) = with(ui) {
         ui.owner.supportActionBar?.hide()
+
         verticalLayout(theme = R.style.AppTheme_Minimal) {
             id = LAYOUT_ID
             padding = dip(46)
@@ -85,6 +98,7 @@ class AuthenticateActivityUI : AnkoComponent<AuthenticateActivity> {
                                         }
                                                 .show()
                                     }
+                                    onSuccessfulLogin(response)
                                 }
                             } catch (e: Exception) {
                                 uiThread {
@@ -96,6 +110,36 @@ class AuthenticateActivityUI : AnkoComponent<AuthenticateActivity> {
                                             .show()
                                 }
                             }
+                        }
+                    }
+                }
+            }
+            if (ClientConfiguration.hasLoginDetails()) {
+                // attempt login with existing info
+                loginPerspective.visibility = GONE
+                val loginDetails = ClientConfiguration.getLoginDetails()
+                val client = PenguinUploadClientAutomator.getClient(loginDetails.server)
+                val loginProgress = indeterminateProgressDialog("Connecting...", "Just a moment") {
+                    setCancelable(false)
+                }
+                doAsync {
+                    try {
+                        val (status, response) = client.validateKey(loginDetails.apikey)
+                        uiThread {
+                            loginProgress.hide()
+                        }
+                        if (status) {
+                            onSuccessfulLogin(response)
+                        }
+                    } catch (e: Exception) {
+                        uiThread {
+                            loginPerspective.visibility = GONE
+                            loginProgress.hide()
+                            alert("Connection error. Make sure you have an internet connection and that the server address is valid.", "Login failure")
+                            {
+                                positiveButton("Dismiss") {}
+                            }
+                                    .show()
                         }
                     }
                 }
