@@ -28,7 +28,10 @@ class AuthenticateActivityUI : AnkoComponent<AuthenticateActivity> {
             val loginPerspective = verticalLayout {
                 id = LOGIN_PERSPECTIVE_ID
                 imageView {
-                    imageResource = R
+                    imageResource = R.drawable.penguinupload
+                }.lparams {
+                    weight = 0.7f
+                    width = matchParent
                 }
                 textView("Server Address")
                 val serverAddress = editText {
@@ -77,8 +80,7 @@ class AuthenticateActivityUI : AnkoComponent<AuthenticateActivity> {
                                     }
                                     val userApiKey = loginResp.apikey
                                 }
-                            }
-                            catch (e: Exception) {
+                            } catch (e: Exception) {
                                 uiThread {
                                     loginProgress.hide()
                                     alert("Connection error. Make sure you have an internet connection and that the server address is valid.", "Login failure")
