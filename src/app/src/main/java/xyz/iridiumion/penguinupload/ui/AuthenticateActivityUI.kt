@@ -12,6 +12,7 @@ import org.jetbrains.anko.*
 import xyz.iridiumion.penguinupload.PenguinUploadApplication
 import xyz.iridiumion.penguinupload.activity.AuthenticateActivity
 import xyz.iridiumion.penguinupload.R
+import xyz.iridiumion.penguinupload.api.client.ClientConfiguration
 import xyz.iridiumion.penguinupload.api.client.PenguinUploadClientAutomator
 import xyz.iridiumion.penguinupload.api.models.LoginResponse
 
@@ -19,13 +20,6 @@ class AuthenticateActivityUI : AnkoComponent<AuthenticateActivity> {
     companion object {
         val LAYOUT_ID = View.generateViewId()
         val LOGIN_PERSPECTIVE_ID = View.generateViewId()
-        fun saveLoginDetails(username: String, apikey: String, server: String) {
-            val editor = PenguinUploadApplication.preferences.edit()
-            editor.putString("username", username)
-            editor.putString("apikey", apikey)
-            editor.putString("server", server)
-            editor.apply()
-        }
     }
 
     override fun createView(ui: AnkoContext<AuthenticateActivity>) = with(ui) {
@@ -82,7 +76,7 @@ class AuthenticateActivityUI : AnkoComponent<AuthenticateActivity> {
                                     val loginResp = gson.fromJson<LoginResponse>(response)
                                     val userApiKey = loginResp.apikey
                                     // save login info
-                                    saveLoginDetails(usernameBox.text.toString(), userApiKey, serverAddress.text.toString())
+                                    ClientConfiguration.saveLoginDetails(ClientConfiguration(usernameBox.text.toString(), userApiKey, serverAddress.text.toString()))
                                     uiThread {
                                         loginProgress.hide()
                                         alert("This app isn't finished.", "Login success")
