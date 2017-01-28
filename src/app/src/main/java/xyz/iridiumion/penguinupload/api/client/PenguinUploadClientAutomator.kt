@@ -1,6 +1,7 @@
 package xyz.iridiumion.penguinupload.api.client
 
 import android.util.Log
+import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.result.Result
 
@@ -10,7 +11,7 @@ class PenguinUploadClientAutomator constructor(val serverAddress: String) {
     }
 
     fun validateKey(apikey: String): Pair<Boolean, String> {
-        val (request, response, result) = (serverAddress + "/api/userinfo").httpPost(listOf(Pair("apikey", apikey))).responseString()
+        val (request, response, result) = (serverAddress + "/api/userinfo").httpGet(listOf(Pair("apikey", apikey))).responseString()
         when (result) {
             is Result.Failure -> {
                 return Pair(false, response.httpResponseMessage)

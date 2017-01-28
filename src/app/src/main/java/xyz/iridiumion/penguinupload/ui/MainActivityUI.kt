@@ -18,8 +18,8 @@ class MainActivityUI(val activity: MainActivity) : AnkoComponent<MainActivity> {
         verticalLayout(theme = R.style.AppTheme_Minimal) {
             id = LAYOUT_ID
             padding = dip(10)
-            textView("Welcome, ${loginInfo.username})")
-            textView("Logged in to ${loginInfo.server})")
+            textView("Welcome, ${loginInfo.username}")
+            textView("Logged in to ${loginInfo.server}")
                     .lparams {
                         gravity = Gravity.BOTTOM or Gravity.CENTER
                     }

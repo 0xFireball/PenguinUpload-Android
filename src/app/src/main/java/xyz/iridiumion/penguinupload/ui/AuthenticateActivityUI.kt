@@ -3,8 +3,10 @@ package xyz.iridiumion.penguinupload.ui
 import android.content.Intent
 import android.support.v4.content.ContextCompat
 import android.text.InputType
+import android.util.Log
 import android.view.View
 import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.widget.EditText
 import android.widget.TextView
 import com.github.salomonbrys.kotson.fromJson
@@ -119,21 +121,25 @@ class AuthenticateActivityUI(val activity: AuthenticateActivity) : AnkoComponent
                 loginPerspective.visibility = GONE
                 val loginDetails = ClientConfiguration.getLoginDetails()
                 val client = PenguinUploadClientAutomator.getClient(loginDetails.server)
+                Log.d("LOGIN", "Logging in as ${loginDetails.username} to ${loginDetails.server}")
                 val loginProgress = indeterminateProgressDialog("Connecting...", "Just a moment") {
                     setCancelable(false)
                 }
                 doAsync {
                     try {
                         val (status, response) = client.validateKey(loginDetails.apikey)
-                        uiThread {
-                            loginProgress.hide()
-                        }
+                        Log.d("LOGIN", "Login status: $status")
                         if (status) {
+                            uiThread {
+                                loginProgress.hide()
+                            }
                             onSuccessfulLogin(response)
+                        } else {
+                            throw Exception("Failed to log in with saved credentials")
                         }
                     } catch (e: Exception) {
                         uiThread {
-                            loginPerspective.visibility = GONE
+                            loginPerspective.visibility = VISIBLE
                             loginProgress.hide()
                             alert("Connection error. Make sure you have an internet connection and that the server address is valid.", "Login failure")
                             {
