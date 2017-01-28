@@ -2,10 +2,10 @@ package xyz.iridiumion.penguinupload.ui
 
 import android.support.v4.content.ContextCompat
 import android.text.InputType
-import android.view.Gravity
 import android.view.View
 import android.widget.EditText
 import android.widget.TextView
+import com.github.salomonbrys.kotson.fromJson
 import com.google.gson.Gson
 import org.jetbrains.anko.*
 import xyz.iridiumion.penguinupload.AuthenticateActivity
@@ -41,7 +41,7 @@ class AuthenticateActivityUI : AnkoComponent<AuthenticateActivity> {
                 }
                 val connectButton = button("Connect") {
                     onClick {
-                        val client = PenguinUploadClientAutomator.getClient()
+                        val client = PenguinUploadClientAutomator.getClient(serverAddress.text.toString())
                         val loginProgress = indeterminateProgressDialog("Logging in...", "Just a moment") {
                             setCancelable(false)
                         }
