@@ -17,24 +17,28 @@ class AuthenticateActivityUI : AnkoComponent<AuthenticateActivity> {
     companion object {
         val LAYOUT_ID = View.generateViewId()
         val LOGIN_PERSPECTIVE_ID = View.generateViewId()
-        val SIGNUP_PERSPECTIVE_ID = View.generateViewId()
     }
 
     override fun createView(ui: AnkoContext<AuthenticateActivity>) = with(ui) {
         ui.owner.supportActionBar?.hide()
         verticalLayout(theme = R.style.AppTheme_Minimal) {
             id = LAYOUT_ID
-            padding = dip(32)
+            padding = dip(46)
             backgroundColor = ContextCompat.getColor(ctx, R.color.colorSnow)
             val loginPerspective = verticalLayout {
                 id = LOGIN_PERSPECTIVE_ID
-
+                imageView {
+                    imageResource = R
+                }
+                textView("Server Address")
                 val serverAddress = editText {
                     hint = "Server Address"
                 }
+                textView("Username")
                 val usernameBox = editText {
                     hint = "Username"
                 }
+                textView("Password")
                 val passwordBox = editText {
                     hint = "Password"
                     inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
@@ -46,30 +50,43 @@ class AuthenticateActivityUI : AnkoComponent<AuthenticateActivity> {
                             setCancelable(false)
                         }
                         doAsync {
-                            val (status, response) = client.attemptLogin(usernameBox.text.toString(), passwordBox.text.toString())
+                            try {
+                                val (status, response) = client.attemptLogin(usernameBox.text.toString(), passwordBox.text.toString())
 
-                            if (!status) {
+
+                                if (!status) {
+                                    uiThread {
+                                        loginProgress.hide()
+                                        alert("Login failed. Please check your username and password.", "Login failure")
+                                        {
+                                            positiveButton("Dismiss") {}
+                                        }
+                                                .show()
+                                    }
+                                } else {
+                                    // parse returned data
+                                    val gson = Gson()
+                                    val loginResp = gson.fromJson<LoginResponse>(response)
+                                    uiThread {
+                                        loginProgress.hide()
+                                        alert("This app isn't finished.", "Login success")
+                                        {
+                                            positiveButton("Dismiss") {}
+                                        }
+                                                .show()
+                                    }
+                                    val userApiKey = loginResp.apikey
+                                }
+                            }
+                            catch (e: Exception) {
                                 uiThread {
                                     loginProgress.hide()
-                                    alert("Login failed. Please check your username and password.", "Login failure")
+                                    alert("Connection error. Make sure you have an internet connection and that the server address is valid.", "Login failure")
                                     {
                                         positiveButton("Dismiss") {}
                                     }
                                             .show()
                                 }
-                            } else {
-                                // parse returned data
-                                val gson = Gson()
-                                val loginResp = gson.fromJson<LoginResponse>(response)
-                                uiThread {
-                                    loginProgress.hide()
-                                    alert("This app isn't finished.", "Login success")
-                                    {
-                                        positiveButton("Dismiss") {}
-                                    }
-                                            .show()
-                                }
-                                val userApiKey = loginResp.apikey
                             }
                         }
                     }
