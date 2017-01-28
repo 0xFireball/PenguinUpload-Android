@@ -15,7 +15,7 @@ class MainActivityUI(val activity: MainActivity) : AnkoComponent<MainActivity> {
 
     override fun createView(ui: AnkoContext<MainActivity>) = with(ui) {
         val loginInfo = ClientConfiguration.getLoginDetails()
-        verticalLayout(theme = R.style.AppTheme_Minimal) {
+        frameLayout(theme = R.style.AppTheme_Minimal) {
             id = LAYOUT_ID
             padding = dip(10)
             textView("Welcome, ${loginInfo.username}")

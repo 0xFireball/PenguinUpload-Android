@@ -11,8 +11,6 @@ class ClientHelper {
             // login was successful
             val gson = Gson()
             val userInfoResp = gson.fromJson<UserInfo>(response)
-            // start next activity
-
         }
     }
 }
